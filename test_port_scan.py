@@ -27,6 +27,9 @@ class TestPortValidation(unittest.TestCase):
         self.assertFalse(port_scan.validate_port(-1), 'Invalid Port: -1')
         self.assertFalse(port_scan.validate_port(0), 'Invalid Port: 0')
 
+        self.assertFalse(port_scan.validate_port(65536), 'Invalid Port: 65536')
+        self.assertFalse(port_scan.validate_port(70000), 'Invalid Port: 70000')
+
 
 if __name__ == '__main__':
     unittest.main()
