@@ -44,7 +44,7 @@ def validate_port(port: int) -> bool:
 
 
 def validate_host(host: str) -> bool:
-    if '.' not in host or host.count('.') != 4:
+    if '.' not in host or host.count('.') != 3:
         return False
     
     octets = host.split('.')
@@ -55,8 +55,20 @@ def validate_host(host: str) -> bool:
     for octet in octets:
         if not octet.isdecimal():
             return False
-        
+
         if not (0 <= int(octet) <= 255):
+            return False
+        
+        if int(octet) < 10 and len(octet) > 1:
+            return False
+        
+        if int(octet) < 100 and len(octet) > 2:
+            return False
+        
+        if int(octet) < 1000 and len(octet) > 3:
+            return False
+        
+        if int(octet) < 10000 and len(octet) > 4:
             return False
 
     return True
