@@ -1,8 +1,6 @@
+import argparse
 import socket
 import threading
-
-HOST = '127.0.0.1'
-PORTS = list(range(200, 500))
 
 
 def test_port(host: str, port: int) -> None:
@@ -20,14 +18,16 @@ def test_port(host: str, port: int) -> None:
         try:    
             sock.connect((host, port))
         except:
-            print('[!] Connection Failure')
+            print(f'[!] {port}: Connection Failure')
             return None
         
-        print('[*] Connection Success')
+        print(f'[*] {port}: Connection Success')
         return None
     
 
 def sequential_scan(host: str, ports: list[int]) -> None:
+    print(f'[*] Starting Sequential Scan on {host}')
+
     for port in ports:
         test_port(host, port)
 
@@ -35,6 +35,7 @@ def sequential_scan(host: str, ports: list[int]) -> None:
 def threaded_scan(host: str, ports: list[int]) -> None:
     threads = []
 
+    print(f'[*] Starting Threaded Scan on {host}')
     for port in ports:
         thread = threading.Thread(target=test_port, args=(host, port))
         thread.start()
@@ -132,6 +133,42 @@ def format_ports(ports: str) -> list[int]:
     
     return [int(ports)]
 
+
 if __name__ == '__main__':
-    for port in PORTS:
-        test_port(port)
+    parser = argparse.ArgumentParser(
+        prog='port_scan.py'
+    )
+
+    scan_type = parser.add_mutually_exclusive_group()
+    options = parser.add_argument_group()
+
+    scan_type.add_argument('-t', '--threaded', action='store_true')
+    scan_type.add_argument('-s', '--sequential', action='store_true')
+
+    options.add_argument('-H', '--Host', required=True)
+    options.add_argument('-P', '--Ports', required=True)
+
+    args = parser.parse_args()
+
+    sequential = args.sequential
+    threaded = args.threaded
+
+    if threaded is None and sequential is None:
+        sequential = True
+
+    host = args.Host
+
+    if not validate_host(host):
+        raise ValueError(f'Enter a Valid Host: {host}')
+
+    ports = args.Ports
+
+    f_ports = format_ports(ports)
+
+    if sequential:
+        sequential_scan(host, f_ports)
+        exit()
+
+    if threaded:
+        threaded_scan(host, f_ports)
+        exit()
