@@ -153,7 +153,7 @@ if __name__ == '__main__':
     sequential = args.sequential
     threaded = args.threaded
 
-    if threaded is None and sequential is None:
+    if threaded is False and sequential is False:
         sequential = True
 
     host = args.Host
