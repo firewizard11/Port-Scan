@@ -38,6 +38,30 @@ def threaded_scan(ports: list[int]) -> None:
     for thread in threads:
         thread.join()
 
+
+def validate_port(port: int) -> bool:
+    return (1 <= port <= 65535)
+
+
+def validate_host(host: str) -> bool:
+    if '.' not in host or host.count('.') != 4:
+        return False
+    
+    octets = host.split('.')
+
+    if len(octets) != 4:
+        return False
+    
+    for octet in octets:
+        if not octet.isdecimal():
+            return False
+        
+        if not (0 <= int(octet) <= 255):
+            return False
+
+    return True
+
+
 if __name__ == '__main__':
     for port in PORTS:
         test_port(port)
