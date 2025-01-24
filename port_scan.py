@@ -101,6 +101,7 @@ def format_ports(ports: str) -> list[int]:
             
         return [int(port) for port in temp]
     
+    # Range of Ports
     if '-' in ports:
         temp = ports.split('-')
 
@@ -117,8 +118,12 @@ def format_ports(ports: str) -> list[int]:
         start = int(temp[0])
         stop = int(temp[1]) + 1
 
+        if start > stop:
+            raise ValueError(f'{start} Should be smaller than {stop}')
+
         return list(range(start, stop))
 
+    # Single Ports
     if not ports.isdecimal():
         raise ValueError(f'Use a Supported Port Format: {ports}')
     
