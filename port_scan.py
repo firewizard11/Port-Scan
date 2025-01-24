@@ -6,6 +6,12 @@ PORTS = list(range(200, 500))
 
 
 def test_port(host: str, port: int) -> None:
+    if not validate_host(host):
+        raise ValueError(f'Host is Invalid: {host}')
+    
+    if not validate_port(port):
+        raise ValueError(f'Port is Invalid: {port}')
+
     print(f'[*] Testing Port {port} on {host}...')
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
@@ -21,16 +27,16 @@ def test_port(host: str, port: int) -> None:
         return None
     
 
-def sequential_scan(ports: list[int]) -> None:
+def sequential_scan(host: str, ports: list[int]) -> None:
     for port in ports:
-        test_port(port)
+        test_port(host, port)
 
 
-def threaded_scan(ports: list[int]) -> None:
+def threaded_scan(host: str, ports: list[int]) -> None:
     threads = []
 
     for port in ports:
-        thread = threading.Thread(target=test_port, args=(port,))
+        thread = threading.Thread(target=test_port, args=(host, port))
         thread.start()
 
         threads.append(thread)
