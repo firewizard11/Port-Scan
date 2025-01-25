@@ -1,6 +1,6 @@
 import argparse
 import socket
-import threading
+from concurrent.futures import ThreadPoolExecutor
 
 
 def test_port(host: str, port: int) -> None:
@@ -32,18 +32,12 @@ def sequential_scan(host: str, ports: list[int]) -> None:
         test_port(host, port)
 
 
-def threaded_scan(host: str, ports: list[int]) -> None:
-    threads = []
-
+def threaded_scan(host: str, ports: list[int], max_threads: int) -> None:
     print(f'[*] Starting Threaded Scan on {host}')
-    for port in ports:
-        thread = threading.Thread(target=test_port, args=(host, port))
-        thread.start()
 
-        threads.append(thread)
-
-    for thread in threads:
-        thread.join()
+    with ThreadPoolExecutor(max_threads) as t_pool:
+        for port in ports:
+            t_pool.submit(test_port, host, port)
 
 
 def validate_port(port: int) -> bool:
@@ -142,7 +136,7 @@ if __name__ == '__main__':
     scan_type = parser.add_mutually_exclusive_group()
     options = parser.add_argument_group()
 
-    scan_type.add_argument('-t', '--threaded', action='store_true')
+    scan_type.add_argument('-t', '--threads', type=int)
     scan_type.add_argument('-s', '--sequential', action='store_true')
 
     options.add_argument('-H', '--Host', required=True)
@@ -151,9 +145,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     sequential = args.sequential
-    threaded = args.threaded
+    threads = args.threads
 
-    if threaded is None and sequential is None:
+    if threads is None and sequential is False:
         sequential = True
 
     host = args.Host
@@ -168,7 +162,5 @@ if __name__ == '__main__':
     if sequential:
         sequential_scan(host, f_ports)
         exit()
-
-    if threaded:
-        threaded_scan(host, f_ports)
-        exit()
+    else:
+        threaded_scan(host, f_ports, threads)
